@@ -12,6 +12,7 @@ int main(int argc, char **argv)
 	ros::NodeHandle n("simple_walk");
 
 	// Period of the walking movement
+	// FIXME : this is not the period but the frequency
 	double period;
 	n.param<double>("period",period,1.0);
 	// Speed for the wheels
@@ -69,9 +70,9 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	for(int j = 0; j < 5; j++)
+	for(int j = 0; j < 3; j++) // originally j < 5
 	{
-		for(int i = 0; i < 6; i++) // FIXME: why 6 instead of 5 ?
+		for(int i = 0; i < 6; i++)
 		{
 			if(std::find(ids.begin(),ids.end(),j*10+i+1) == ids.end())
 			{
@@ -92,26 +93,29 @@ int main(int argc, char **argv)
 
 	ROS_INFO_STREAM("Speed controlled ids : ");
 	for(int i = 0; i < speed_ctrl_ids.size(); i++)
-		ROS_INFO_STREAM(speed_ctrl_ids[i]);
+		ROS_INFO_STREAM((int)speed_ctrl_ids[i]);
 
 	ROS_INFO_STREAM("Position controlled ids : ");
 	for(int i = 0; i < pos_ctrl_ids.size(); i++)
-		ROS_INFO_STREAM(pos_ctrl_ids[i]);
+		ROS_INFO_STREAM((int)pos_ctrl_ids[i]);
 
 	// FIXME: here we assume that the actuator IDs are gien in ascending order
 	// 		  we should not rely on this assumption !
-	pos[0] = 2700; // id 1
+	pos[0] = 1498; // id 1
 	pos[1] = 2048; // id 2
-	pos[2] = 1400; // id 3
-	pos[3] = 2700; // id 4
+	pos[2] = 2598; // id 3
+	pos[3] = 1498; // id 4
 	pos[4] = 2048; // id 5
-	pos[5] = 1400; // id 6
+	pos[5] = 2598; // id 6
 
-	int initial_offset = -300;//500;
+	int initial_offset = -512;//500;
 	for(int i = 0; i < 6; i++)
 	{
-		pos[6+i] = 2048 + (i < 3 ? initial_offset : -initial_offset); // id 11 to 16
-		pos[12+i] = 2048 + (i < 3 ? initial_offset : -initial_offset); // id 21 to 26
+		// pos[6+i] = 2048 + (i < 3 ? initial_offset : -initial_offset); // id 11 to 16
+		// pos[12+i] = 2048 + (i < 3 ? initial_offset : -initial_offset); // id 21 to 26
+		// pos[18+i] = 512; // id 31 to 36
+		pos[6+i] = 2048 + initial_offset; // id 11 to 16
+		pos[12+i] = 2048 - initial_offset; // id 21 to 26
 		pos[18+i] = 512; // id 31 to 36
 	}
 	pos.resize(pos_ctrl_ids.size());
@@ -148,7 +152,7 @@ int main(int argc, char **argv)
 	speed_pub.publish(speed_msg);
 
 	// amplitudes of the oscilators
-	int amp0 = 160, amp1=300, amp3=40;
+	int amp0 = 140, amp1=300, amp3=40;
 
 
 	std::cout << "Press any key to start marchin toward the enemy..." << std::endl;
@@ -177,16 +181,16 @@ int main(int argc, char **argv)
 		pos_msg.positions[6] = pos[6] + sin1; // 11
 		pos_msg.positions[7] = pos[7] - sin1; // 12
 		pos_msg.positions[8] = pos[8] + sin1; // 13
-		pos_msg.positions[9] = pos[9] + sin1; // 14
-		pos_msg.positions[10] = pos[10] - sin1; // 15
-		pos_msg.positions[11] = pos[11] + sin1; // 16
+		pos_msg.positions[9] = pos[9] - sin1; // 14
+		pos_msg.positions[10] = pos[10] + sin1; // 15
+		pos_msg.positions[11] = pos[11] - sin1; // 16
 
 		pos_msg.positions[12] = pos[12] + sin1; // 21
 		pos_msg.positions[13] = pos[13] - sin1; // 22
 		pos_msg.positions[14] = pos[14] + sin1; // 23
-		pos_msg.positions[15] = pos[15] + sin1; // 24
-		pos_msg.positions[16] = pos[16] - sin1; // 25
-		pos_msg.positions[17] = pos[17] + sin1; // 26
+		pos_msg.positions[15] = pos[15] - sin1; // 24
+		pos_msg.positions[16] = pos[16] + sin1; // 25
+		pos_msg.positions[17] = pos[17] - sin1; // 26
 
 		pos_msg.positions[18] = pos[18] - sin3;
 		pos_msg.positions[19] = pos[19] + sin3;
