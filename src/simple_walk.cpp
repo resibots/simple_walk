@@ -11,29 +11,40 @@ int main(int argc, char **argv)
 	ros::init(argc,argv,"simple_walk");
 	ros::NodeHandle n("simple_walk");
 
+	// Period of the walking movement
 	double period;
 	n.param<double>("period",period,1.0);
+	// Speed for the wheels
 	int wheel_speed;
 	n.param<int>("wheel_speed",wheel_speed,50);
 
-	printf("Period is set to %f\r\n",period);
-	printf("Wheels speed is set to %d\r\n",wheel_speed);
+	ROS_INFO_STREAM("Period is set to " << period);
+	ROS_INFO_STREAM("Wheels speed is set to " << wheel_speed);
 
+	// Declare to publish on two topics
 	ros::Publisher speed_pub = n.advertise<dynamixel_control::SpeedWheelCtrl>("target_speeds",10);
 	ros::Publisher position_pub = n.advertise<dynamixel_control::PositionCtrl>("target_positions",10);
-	ros::Rate loop_rate(100);
+
+	// Rate at which the main loop will be executed
+	ros::Rate loop_rate(100); // 100 Hz
 
 	dynamixel_control::PositionCtrl pos_msg;
 	dynamixel_control::SpeedWheelCtrl speed_msg;
+	// ids of all connected actuators
 	std::vector<unsigned char> ids;
 
+	// Client to get the ids of the connected actuators
 	ros::ServiceClient ids_client = n.serviceClient<dynamixel_control::GetIDs>("/dynamixel_control/getids");
 	dynamixel_control::GetIDs ids_srv;
 
+	// ids of actuators controlled in position (joint mode)
 	std::vector<unsigned char> pos_ctrl_ids;
+	// ids of actuators controlled in speed (wheel mode)
 	std::vector<unsigned char> speed_ctrl_ids;
+
 	std::vector<int> pos;
 
+	// Ask which dynamixels are connected
 	if (ids_client.call(ids_srv))
 	{
 		ids = ids_srv.response.ids;
@@ -44,6 +55,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+	// Client to get the current angular positions of each actuator
 	ros::ServiceClient pos_client = n.serviceClient<dynamixel_control::GetActuatorsPositions>("/dynamixel_control/getpositions");
 	dynamixel_control::GetActuatorsPositions pos_srv;
 
@@ -59,7 +71,7 @@ int main(int argc, char **argv)
 
 	for(int j = 0; j < 5; j++)
 	{
-		for(int i = 0; i < 6; i++)
+		for(int i = 0; i < 6; i++) // FIXME: why 6 instead of 5 ?
 		{
 			if(std::find(ids.begin(),ids.end(),j*10+i+1) == ids.end())
 			{
@@ -78,16 +90,16 @@ int main(int argc, char **argv)
 		}
 	}
 
-	printf("Speed controlled ids : ");
+	ROS_INFO_STREAM("Speed controlled ids : ");
 	for(int i = 0; i < speed_ctrl_ids.size(); i++)
-		printf("%d ",speed_ctrl_ids[i]);
-	printf("\r\n");
+		ROS_INFO_STREAM(speed_ctrl_ids[i]);
 
-	printf("Position controlled ids : ");
+	ROS_INFO_STREAM("Position controlled ids : ");
 	for(int i = 0; i < pos_ctrl_ids.size(); i++)
-		printf("%d ",pos_ctrl_ids[i]);
-	printf("\r\n");
+		ROS_INFO_STREAM(pos_ctrl_ids[i]);
 
+	// FIXME: here we assume that the actuator IDs are gien in ascending order
+	// 		  we should not rely on this assumption !
 	pos[0] = 2700; // id 1
 	pos[1] = 2048; // id 2
 	pos[2] = 1400; // id 3
@@ -104,9 +116,6 @@ int main(int argc, char **argv)
 	}
 	pos.resize(pos_ctrl_ids.size());
 
-
-
-
 	// Lower motors speeds for initial positionning
 	speed_msg.ids = pos_ctrl_ids;
 	speed_msg.directions.clear();
@@ -118,14 +127,11 @@ int main(int argc, char **argv)
 	}
 	speed_pub.publish(speed_msg);
 
-
-
-
-
 	char c;
-	std::cout << "Waiting for input.." << std::endl;
+	std::cout << "Press any key..." << std::endl;
 	std::cin >> c;
 
+	// Move the joints to initial position and stop wheels
 	pos_msg.ids = pos_ctrl_ids;
 	pos_msg.positions = pos;
 	position_pub.publish(pos_msg);
@@ -141,11 +147,11 @@ int main(int argc, char **argv)
 	}
 	speed_pub.publish(speed_msg);
 
-
+	// amplitudes of the oscilators
 	int amp0 = 160, amp1=300, amp3=40;
 
 
-	std::cout << "Waiting for input (ready to walk).." << std::endl;
+	std::cout << "Press any key to start marchin toward the enemy..." << std::endl;
 	std::cin >> c;
 
 	double begin = ros::Time::now().toSec();
@@ -156,6 +162,7 @@ int main(int argc, char **argv)
 	{
 		double elapsed = ros::Time::now().toSec() - begin;
 
+		// oscillate around the initial position
 		int sin0 = (int)(amp0*sin(period*elapsed));
 		int sin1 = (int)(amp1*cos(period*elapsed));
 		int sin3 = (int)(amp3*sin(period*elapsed));
@@ -196,8 +203,8 @@ int main(int argc, char **argv)
 		  //			std::cout << "Waiting for input.." << std::endl;
 		  //	std::cin >> c;
 
-			// Start wheels mvt
-			printf("Now starting wheel movements\r\n");
+			// Start wheels movement
+			ROS_INFO_STREAM("Now starting wheel movements");
 			speed_msg.ids.clear();
 			speed_msg.ids = speed_ctrl_ids;
 			speed_msg.directions.clear();
@@ -211,7 +218,7 @@ int main(int argc, char **argv)
 			ros::Duration(0.5).sleep();
 
 			// Restore motors max speeds
-			printf("Restoring motors max speeds\r\n");
+			ROS_INFO_STREAM("Restoring motors max speeds");
 			speed_msg.ids.clear();
 			speed_msg.ids = pos_ctrl_ids;
 			speed_msg.directions.clear();
