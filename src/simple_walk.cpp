@@ -13,6 +13,8 @@ int main(int argc, char **argv)
 	ros::init(argc,argv,"simple_walk");
 	ros::NodeHandle n("simple_walk");
 
+	bool move_backwards = false;
+
 	// pulsation of the walking movement
 	double pulsation;
 	n.param<double>("pulsation", pulsation, 1.0);
@@ -173,7 +175,11 @@ int main(int argc, char **argv)
 
 		// oscillate around the initial position
 		int sin0 = (int)(amp0*sin(pulsation*elapsed));
-		int sin1 = (int)(amp1*cos(pulsation*elapsed));
+		int sin1 = -(int)(amp1*cos(pulsation*elapsed));
+
+		// phase shift the end of the limbs if we want to move backwards
+		if (move_backwards)
+			sin1 = -sin1;
 
 		for (unsigned char id=0; id<pos_ctrl_ids.size(); id++)
 		{
