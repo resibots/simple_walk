@@ -13,7 +13,6 @@ int main(int argc, char **argv)
 	ros::NodeHandle n("simple_walk");
 
 	// pulsation of the walking movement
-	// FIXME : this is not the pulsation but the frequency
 	double pulsation;
 	n.param<double>("pulsation",pulsation,1.0);
 	// Speed for the wheels
@@ -34,7 +33,7 @@ int main(int argc, char **argv)
 	dynamixel_control::PositionCtrl pos_msg;
 	dynamixel_control::SpeedCtrl speed_msg;
 	dynamixel_control::SpeedWheelCtrl wheel_speed_msg;
-	// ids of all connected actuators
+	// will contain the ids of all connected actuators
 	std::vector<unsigned char> ids;
 
 	// Client to get the ids of the connected actuators
