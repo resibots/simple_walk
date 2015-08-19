@@ -5,6 +5,6 @@
     <param name="wheel_speed" value="0"/>
     <remap from="simple_walk/target_positions" to="dynamixel_control/setpositions"/>
     <remap from="simple_walk/target_speeds" to="dynamixel_control/setspeeds"/>
+    <remap from="simple_walk/target_wheel_speeds" to="dynamixel_control/setwheelsspeeds"/>
   </node>
 </launch>
-

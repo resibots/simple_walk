@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include "dynamixel_control/SpeedCtrl.h"
 #include "dynamixel_control/SpeedWheelCtrl.h"
 #include "dynamixel_control/PositionCtrl.h"
 #include "dynamixel_control/GetIDs.h"
@@ -23,14 +24,16 @@ int main(int argc, char **argv)
 	ROS_INFO_STREAM("Wheels speed is set to " << wheel_speed);
 
 	// Declare to publish on two topics
-	ros::Publisher speed_pub = n.advertise<dynamixel_control::SpeedWheelCtrl>("target_speeds",10);
 	ros::Publisher position_pub = n.advertise<dynamixel_control::PositionCtrl>("target_positions",10);
+	ros::Publisher speed_pub = n.advertise<dynamixel_control::SpeedCtrl>("target_speeds",10);
+	ros::Publisher wheel_speed_pub = n.advertise<dynamixel_control::SpeedWheelCtrl>("target_wheel_speeds",10);
 
 	// Rate at which the main loop will be executed
 	ros::Rate loop_rate(100); // 100 Hz
 
 	dynamixel_control::PositionCtrl pos_msg;
-	dynamixel_control::SpeedWheelCtrl speed_msg;
+	dynamixel_control::SpeedCtrl speed_msg;
+	dynamixel_control::SpeedWheelCtrl wheel_speed_msg;
 	// ids of all connected actuators
 	std::vector<unsigned char> ids;
 
@@ -122,11 +125,9 @@ int main(int argc, char **argv)
 
 	// Lower motors speeds for initial positionning
 	speed_msg.ids = pos_ctrl_ids;
-	speed_msg.directions.clear();
 	speed_msg.speeds.clear();
 	for(int i = 0; i < speed_msg.ids.size(); i++)
 	{
-		speed_msg.directions.push_back(false);
 		speed_msg.speeds.push_back(100);
 	}
 	speed_pub.publish(speed_msg);
@@ -140,16 +141,16 @@ int main(int argc, char **argv)
 	pos_msg.positions = pos;
 	position_pub.publish(pos_msg);
 
-	speed_msg.ids.clear();
-	speed_msg.ids = speed_ctrl_ids;
-	speed_msg.directions.clear();
-	speed_msg.speeds.clear();
-	for(int i = 0; i < speed_msg.ids.size(); i++)
+	wheel_speed_msg.ids.clear();
+	wheel_speed_msg.ids = speed_ctrl_ids;
+	wheel_speed_msg.directions.clear();
+	wheel_speed_msg.speeds.clear();
+	for(int i = 0; i < wheel_speed_msg.ids.size(); i++)
 	{
-		speed_msg.directions.push_back(false);
-		speed_msg.speeds.push_back(0);
+		wheel_speed_msg.directions.push_back(false);
+		wheel_speed_msg.speeds.push_back(0);
 	}
-	speed_pub.publish(speed_msg);
+	wheel_speed_pub.publish(wheel_speed_msg);
 
 	// amplitudes of the oscilators
 	int amp0 = 140, amp1=300, amp3=40;
@@ -209,27 +210,25 @@ int main(int argc, char **argv)
 
 			// Start wheels movement
 			ROS_INFO_STREAM("Now starting wheel movements");
-			speed_msg.ids.clear();
-			speed_msg.ids = speed_ctrl_ids;
-			speed_msg.directions.clear();
-			speed_msg.speeds.clear();
-			for(int i = 0; i < speed_msg.ids.size(); i++)
+			wheel_speed_msg.ids.clear();
+			wheel_speed_msg.ids = speed_ctrl_ids;
+			wheel_speed_msg.directions.clear();
+			wheel_speed_msg.speeds.clear();
+			for(int i = 0; i < wheel_speed_msg.ids.size(); i++)
 			{
-				speed_msg.directions.push_back(i>=3);
-				speed_msg.speeds.push_back(wheel_speed);
+				wheel_speed_msg.directions.push_back(i>=3);
+				wheel_speed_msg.speeds.push_back(wheel_speed);
 			}
-			speed_pub.publish(speed_msg);
+			wheel_speed_pub.publish(wheel_speed_msg);
 			ros::Duration(0.5).sleep();
 
 			// Restore motors max speeds
 			ROS_INFO_STREAM("Restoring motors max speeds");
 			speed_msg.ids.clear();
 			speed_msg.ids = pos_ctrl_ids;
-			speed_msg.directions.clear();
 			speed_msg.speeds.clear();
 			for(int i = 0; i < speed_msg.ids.size(); i++)
 			{
-				speed_msg.directions.push_back(false);
 				speed_msg.speeds.push_back(0);
 			}
 			speed_pub.publish(speed_msg);
