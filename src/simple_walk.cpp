@@ -6,6 +6,7 @@
 #include "dynamixel_control/GetActuatorsPositions.h"
 
 #include <iostream>
+#include <sstream>
 
 int main(int argc, char **argv)
 {
@@ -18,6 +19,9 @@ int main(int argc, char **argv)
 	// Speed for the wheels
 	int wheel_speed;
 	n.param<int>("wheel_speed",wheel_speed,50);
+
+	// amplitudes of the oscilators
+	int amp0 = 140, amp1=300, amp3=40;
 
 	ROS_INFO_STREAM("Pulsation is set to " << pulsation);
 	ROS_INFO_STREAM("Wheels speed is set to " << wheel_speed);
@@ -72,6 +76,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+	// FIXME: use configuration file instead
 	for(int j = 0; j < 3; j++) // originally j < 5
 	{
 		for(int i = 0; i < 6; i++)
@@ -93,16 +98,15 @@ int main(int argc, char **argv)
 		}
 	}
 
-	ROS_INFO_STREAM("Speed controlled ids : ");
+	std::stringstream list_of_ids;
 	for(int i = 0; i < speed_ctrl_ids.size(); i++)
-		ROS_INFO_STREAM((int)speed_ctrl_ids[i]);
+		list_of_ids << (int)speed_ctrl_ids[i] << " ";
+	ROS_INFO_STREAM("Speed controlled ids : " << list_of_ids.str());
 
-	ROS_INFO_STREAM("Position controlled ids : ");
 	for(int i = 0; i < pos_ctrl_ids.size(); i++)
-		ROS_INFO_STREAM((int)pos_ctrl_ids[i]);
+		list_of_ids << (int)pos_ctrl_ids[i] << " ";
+	ROS_INFO_STREAM("Position controlled ids : " << list_of_ids.str());
 
-	// FIXME: here we assume that the actuator IDs are gien in ascending order
-	// 		  we should not rely on this assumption !
 	pos[0] = 1498; // id 1
 	pos[1] = 2048; // id 2
 	pos[2] = 2598; // id 3
@@ -116,6 +120,7 @@ int main(int argc, char **argv)
 		// pos[6+i] = 2048 + (i < 3 ? initial_offset : -initial_offset); // id 11 to 16
 		// pos[12+i] = 2048 + (i < 3 ? initial_offset : -initial_offset); // id 21 to 26
 		// pos[18+i] = 512; // id 31 to 36
+		// For Pexod
 		pos[6+i] = 2048 + initial_offset; // id 11 to 16
 		pos[12+i] = 2048 - initial_offset; // id 21 to 26
 		pos[18+i] = 512; // id 31 to 36
@@ -136,6 +141,7 @@ int main(int argc, char **argv)
 	std::cin >> c;
 
 	// Move the joints to initial position and stop wheels
+
 	pos_msg.ids = pos_ctrl_ids;
 	pos_msg.positions = pos;
 	position_pub.publish(pos_msg);
@@ -151,11 +157,7 @@ int main(int argc, char **argv)
 	}
 	wheel_speed_pub.publish(wheel_speed_msg);
 
-	// amplitudes of the oscilators
-	int amp0 = 140, amp1=300, amp3=40;
-
-
-	std::cout << "Press any key to start marchin toward the enemy..." << std::endl;
+	std::cout << "Press any key to start marching toward the enemy..." << std::endl;
 	std::cin >> c;
 
 	double begin = ros::Time::now().toSec();
@@ -203,10 +205,6 @@ int main(int argc, char **argv)
 
 		if(first)
 		{
-		  //			printf("Waiting for initial positioning to complete\r\n");
-		  //			std::cout << "Waiting for input.." << std::endl;
-		  //	std::cin >> c;
-
 			// Start wheels movement
 			ROS_INFO_STREAM("Now starting wheel movements");
 			wheel_speed_msg.ids.clear();
