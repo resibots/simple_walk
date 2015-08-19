@@ -11,15 +11,15 @@ int main(int argc, char **argv)
 	ros::init(argc,argv,"simple_walk");
 	ros::NodeHandle n("simple_walk");
 
-	// Period of the walking movement
-	// FIXME : this is not the period but the frequency
-	double period;
-	n.param<double>("period",period,1.0);
+	// pulsation of the walking movement
+	// FIXME : this is not the pulsation but the frequency
+	double pulsation;
+	n.param<double>("pulsation",pulsation,1.0);
 	// Speed for the wheels
 	int wheel_speed;
 	n.param<int>("wheel_speed",wheel_speed,50);
 
-	ROS_INFO_STREAM("Period is set to " << period);
+	ROS_INFO_STREAM("Pulsation is set to " << pulsation);
 	ROS_INFO_STREAM("Wheels speed is set to " << wheel_speed);
 
 	// Declare to publish on two topics
@@ -167,9 +167,9 @@ int main(int argc, char **argv)
 		double elapsed = ros::Time::now().toSec() - begin;
 
 		// oscillate around the initial position
-		int sin0 = (int)(amp0*sin(period*elapsed));
-		int sin1 = (int)(amp1*cos(period*elapsed));
-		int sin3 = (int)(amp3*sin(period*elapsed));
+		int sin0 = (int)(amp0*sin(pulsation*elapsed));
+		int sin1 = (int)(amp1*cos(pulsation*elapsed));
+		int sin3 = (int)(amp3*sin(pulsation*elapsed));
 
 		pos_msg.positions[0] = pos[0] + sin0;
 		pos_msg.positions[1] = pos[1] - sin0;
