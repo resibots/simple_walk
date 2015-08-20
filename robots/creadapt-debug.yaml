@@ -1,7 +1,7 @@
 actuator_ids:
   joint_mode: [1,2,3,4,5,6,11,12,13,14,15,16,21,22,23,24,25,26]
   wheel_mode: [41, 42, 43, 44, 45, 46]
-invert_position: [false, true, false, false, true, false, false, true, false, false, true, false, true, false, true, true, false, true]
+invert_position: [false, true, false, false, true, false, false, true, false, false, true, false, false, true, false, false, true, false]
 reference_pose: [2700, 2048, 1400, 2700, 2048, 1400, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048, 2048]
 associated_oscillator: [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 amplitude_0: 140
