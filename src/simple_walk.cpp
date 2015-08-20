@@ -140,6 +140,8 @@ int main(int argc, char **argv)
 		speed_msg.speeds.push_back(100);
 	}
 	speed_pub.publish(speed_msg);
+	speed_pub.publish(speed_msg);
+	speed_pub.publish(speed_msg);
 
 	char c;
 	std::cout << "Press any key..." << std::endl;
