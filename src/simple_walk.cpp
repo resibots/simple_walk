@@ -165,7 +165,15 @@ int main(int argc, char **argv)
 	// FIXME: do we even use the positions we get here ?
 
 	std::vector<int> reference_pose;
-	n.getParam("reference_pose", reference_pose);
+	XmlRpc::XmlRpcValue reference_pose_rpc;
+	n.getParam("reference_pose", reference_pose_rpc);
+	ROS_ASSERT(reference_pose_rpc.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+	for (int32_t i = 0; i < reference_pose_rpc.size(); ++i)
+	{
+	  ROS_ASSERT(reference_pose_rpc[i].getType() == XmlRpc::XmlRpcValue::TypeInt);
+	  reference_pose[i] = static_cast<int>(reference_pose_rpc[i]);
+	}
 
 	pos.resize(pos_ctrl_ids.size());
 	for (unsigned char id=0; id<pos_ctrl_ids.size(); id++)
