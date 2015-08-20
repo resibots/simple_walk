@@ -2,7 +2,7 @@
   <node pkg="simple_walk" type="simple_walk" name="simple_walk" output="screen">
     <param name="pulsation" value="1.0"/>
     <param name="wheel_speed" value="0"/>
-    <rosparam command="load" file="$(find simple_walk)/robots/creadapt-debug.yaml" />
+    <rosparam command="load" file="$(find simple_walk)/robots/creadapt.yaml" />
     <remap from="simple_walk/target_positions" to="dynamixel_control/setpositions"/>
     <remap from="simple_walk/target_speeds" to="dynamixel_control/setspeeds"/>
     <remap from="simple_walk/target_wheel_speeds" to="dynamixel_control/setwheelsspeeds"/>
