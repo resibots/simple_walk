@@ -62,6 +62,8 @@ int main(int argc, char **argv)
 	n.getParam("actuator_ids/wheel_mode", speed_ctrl_ids_rpc);
 	ROS_ASSERT(speed_ctrl_ids_rpc.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
+	pos_ctrl_ids.resize(pos_ctrl_ids_rpc.size());
+	speed_ctrl_ids.resize(speed_ctrl_ids_rpc.size());
 	for (int32_t i = 0; i < pos_ctrl_ids_rpc.size(); ++i)
 	{
 	  ROS_ASSERT(pos_ctrl_ids_rpc[i].getType() == XmlRpc::XmlRpcValue::TypeInt);
@@ -88,6 +90,7 @@ int main(int argc, char **argv)
 	n.getParam("invert_position", invert_position_rpc);
 	ROS_ASSERT(invert_position_rpc.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
+	invert_position.resize(invert_position_rpc.size());
 	for (int32_t i=0; i < invert_position_rpc.size(); ++i)
 	{
 		ROS_ASSERT(invert_position_rpc[i].getType() == XmlRpc::XmlRpcValue::TypeBoolean);
@@ -100,6 +103,7 @@ int main(int argc, char **argv)
 	n.getParam("associated_oscillator", associated_oscillator_rpc);
 	ROS_ASSERT(associated_oscillator_rpc.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
+	associated_oscillator.resize(associated_oscillator_rpc.size());
 	for (int32_t i = 0; i < associated_oscillator_rpc.size(); ++i)
 	{
 	  ROS_ASSERT(associated_oscillator_rpc[i].getType() == XmlRpc::XmlRpcValue::TypeInt);
@@ -169,6 +173,7 @@ int main(int argc, char **argv)
 	n.getParam("reference_pose", reference_pose_rpc);
 	ROS_ASSERT(reference_pose_rpc.getType() == XmlRpc::XmlRpcValue::TypeArray);
 
+	reference_pose.resize(reference_pose_rpc.size());
 	for (int32_t i = 0; i < reference_pose_rpc.size(); ++i)
 	{
 	  ROS_ASSERT(reference_pose_rpc[i].getType() == XmlRpc::XmlRpcValue::TypeInt);
@@ -189,6 +194,7 @@ int main(int argc, char **argv)
 		speed_msg.speeds.push_back(100);
 	}
 	speed_pub.publish(speed_msg);
+	ros::Duration(1).sleep();
 	speed_pub.publish(speed_msg);
 	speed_pub.publish(speed_msg);
 
