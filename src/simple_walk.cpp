@@ -49,21 +49,62 @@ int main(int argc, char **argv)
 	dynamixel_control::GetIDs ids_srv;
 
 	// Get the list of joint mode and wheel mode actoators for this robot
-	std::vector<int> pos_ctrl_ids_int;
-	std::vector<int> speed_ctrl_ids_int;
-	n.getParam("actuator_ids/joint_mode", pos_ctrl_ids_int);
-	n.getParam("actuator_ids/wheelmode", speed_ctrl_ids_int);
-
-	// Get the configuration parameters for each actuator
-	std::vector<bool> invert_position;
-	n.getParam("invert_position", invert_position);
-	std::vector<int> associated_oscillator;
-	n.getParam("associated_oscillator", associated_oscillator);
 
 	// ids of actuators controlled in position (joint mode)
-	std::vector<unsigned char> pos_ctrl_ids(pos_ctrl_ids_int.begin(), pos_ctrl_ids_int.end());
+	XmlRpc::XmlRpcValue pos_ctrl_ids_rpc;
+	std::vector<unsigned char> pos_ctrl_ids;
 	// ids of actuators controlled in speed (wheel mode)
-	std::vector<unsigned char> speed_ctrl_ids(speed_ctrl_ids_int.begin(), speed_ctrl_ids_int.end());
+	XmlRpc::XmlRpcValue speed_ctrl_ids_rpc;
+	std::vector<unsigned char> speed_ctrl_ids;
+
+	n.getParam("actuator_ids/joint_mode", pos_ctrl_ids_rpc);
+	ROS_ASSERT(pos_ctrl_ids_rpc.getType() == XmlRpc::XmlRpcValue::TypeArray);
+	n.getParam("actuator_ids/wheel_mode", speed_ctrl_ids_rpc);
+	ROS_ASSERT(speed_ctrl_ids_rpc.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+	for (int32_t i = 0; i < pos_ctrl_ids_rpc.size(); ++i)
+	{
+	  ROS_ASSERT(pos_ctrl_ids_rpc[i].getType() == XmlRpc::XmlRpcValue::TypeInt);
+	  int id = static_cast<int>(pos_ctrl_ids_rpc[i]);
+		pos_ctrl_ids[i] = static_cast<unsigned char>(id);
+	}
+	for (int32_t i = 0; i < speed_ctrl_ids_rpc.size(); ++i)
+	{
+	  ROS_ASSERT(speed_ctrl_ids_rpc[i].getType() == XmlRpc::XmlRpcValue::TypeInt);
+	  int id = static_cast<int>(speed_ctrl_ids_rpc[i]);
+		speed_ctrl_ids[i] = static_cast<unsigned char>(id);
+	}
+
+	// ids of actuators controlled in position (joint mode)
+	// std::vector<unsigned char> pos_ctrl_ids(pos_ctrl_ids_int.begin(), pos_ctrl_ids_int.end());
+	// // ids of actuators controlled in speed (wheel mode)
+	// std::vector<unsigned char> speed_ctrl_ids(speed_ctrl_ids_int.begin(), speed_ctrl_ids_int.end());
+
+	// Get the configuration parameters for each actuator
+
+	// Which actuator's oscillations should be inverted
+	XmlRpc::XmlRpcValue invert_position_rpc;
+	std::vector<bool> invert_position;
+	n.getParam("invert_position", invert_position_rpc);
+	ROS_ASSERT(invert_position_rpc.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+	for (int32_t i=0; i < invert_position_rpc.size(); ++i)
+	{
+		ROS_ASSERT(invert_position_rpc[i].getType() == XmlRpc::XmlRpcValue::TypeBoolean);
+		invert_position[i] = static_cast<bool>(invert_position_rpc[i]);
+	}
+
+	// Which actuator is associated to which oscillator
+	XmlRpc::XmlRpcValue associated_oscillator_rpc;
+	std::vector<int> associated_oscillator;
+	n.getParam("associated_oscillator", associated_oscillator_rpc);
+	ROS_ASSERT(associated_oscillator_rpc.getType() == XmlRpc::XmlRpcValue::TypeArray);
+
+	for (int32_t i = 0; i < associated_oscillator_rpc.size(); ++i)
+	{
+	  ROS_ASSERT(associated_oscillator_rpc[i].getType() == XmlRpc::XmlRpcValue::TypeInt);
+	  associated_oscillator[i] = static_cast<int>(associated_oscillator_rpc[i]);
+	}
 
 	std::vector<int> pos;
 
